@@ -183,6 +183,23 @@ public:
         }
         
     }
+
+    std::vector<double> predict(const std::vector<double>& input) {
+
+        std::vector<double> thisInput = input;
+
+        // forwards pass returning only values of last layer
+        for (size_t i = 0; i < layers.size(); ++i) {
+            // TODO: replace sigmoid with general activation func.
+            thisInput = layers[i].activateLayer(thisInput, sigmoid);
+            
+            if (i == layers.size() - 1) {
+                thisInput = softMax(thisInput);
+            }
+        }
+
+        return thisInput;
+    }
 };
 
 
@@ -199,5 +216,10 @@ int main() {
     // std::cout << "\n\n" << std::endl;
     network.train(inputs, expectedOutputs, 100, sigmoid, d_sigmoid);
 
+    std::vector<double> prediction = network.predict(inputs.back());
+    std::cout << "Prediction:" << std::endl;
+    for (double x : prediction) {
+        std::cout << x << std::endl;
+    }
     return 0;
 };
