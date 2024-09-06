@@ -1,2 +1,4 @@
 .vscode/
 .exe
+
+Datasets/MNIST/mnist_train.csv
