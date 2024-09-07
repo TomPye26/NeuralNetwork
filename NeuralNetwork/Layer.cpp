@@ -3,8 +3,10 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <string>
+#include <ctime>
 
-#include"activationFunctions.hpp"
+#include "activationFunctions.hpp"
 
 
 void Layer::assignActivationFunction(std::string& activationFuncString) {
@@ -85,6 +87,18 @@ void Layer::updateLayerWeightsAndBiases(
     }
 }
 
+std::vector<Neuron>& Layer::getNeurons() {
+    return neurons;
+}
+
+double (*Layer::getActivationFunction())(double) {
+    return activationFunc;
+}
+
+double (*Layer::getActivationFunctionDerivative())(double) {
+    return d_activationFunc;
+}
+
 // Utility Methods
 void Layer::printLayerWeightsAndBiases() {
     for (int i = 0; i < neurons.size(); ++i) {
@@ -107,35 +121,35 @@ void Layer::printActivationFunc(){
 }
 
 
-int main() { 
+// int main() { 
 
-    // example input
-    std::vector<double> inputs = {0.5, -0.5, 1.0, -1.0};
+//     // example input
+//     std::vector<double> inputs = {0.5, -0.5, 1.0, -1.0};
     
-    int numInputs = inputs.size();
-    int numNeurons = 4; // arbitrary value
-    double learningRate = 0.1;
-    std::string activationFuncString = "SoftMax";
+//     int numInputs = inputs.size();
+//     int numNeurons = 4; // arbitrary value
+//     double learningRate = 0.1;
+//     std::string activationFuncString = "SoftMax";
     
-    // create a layer
-    Layer layer(numNeurons, numInputs, learningRate, activationFuncString);
+//     // create a layer
+//     Layer layer(numNeurons, numInputs, learningRate, activationFuncString);
 
-    // activate each neuron in the layer
-    std::vector<double> outputs = layer.activateLayer(inputs);
+//     // activate each neuron in the layer
+//     std::vector<double> outputs = layer.activateLayer(inputs);
 
 
-    // update weights and biases (using exampe deltas)
-    std::vector<double> deltas(numNeurons, 0.2);
-    layer.updateLayerWeightsAndBiases(inputs, deltas);
+//     // update weights and biases (using exampe deltas)
+//     std::vector<double> deltas(numNeurons, 0.2);
+//     layer.updateLayerWeightsAndBiases(inputs, deltas);
 
-    layer.printLayerWeightsAndBiases();
+//     layer.printLayerWeightsAndBiases();
 
-    layer.printActivationFunc();
+//     layer.printActivationFunc();
 
-    for (double o : outputs) {
-        std::cout << o << "\n";
-    }
+//     for (double o : outputs) {
+//         std::cout << o << "\n";
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 

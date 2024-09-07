@@ -12,7 +12,7 @@ private:
     // Attribute Variables
     std::vector<Neuron> neurons;
     std::string activationFuncString;
-    
+
     double (*activationFunc)(double) = nullptr;
     double (*d_activationFunc)(double) = nullptr;
 
@@ -38,6 +38,8 @@ public:
         const std::vector<double>& deltas
     );
 
+    std::vector<Neuron>& getNeurons();
+
     // Utility Methods
     void printLayerWeightsAndBiases();
 
@@ -45,6 +47,9 @@ public:
 
     void printActivationFunc();
 
+    double (*getActivationFunction())(double);
+
+    double (*getActivationFunctionDerivative())(double);
 };
 
 #endif // LAYER_HPP

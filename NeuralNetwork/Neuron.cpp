@@ -1,6 +1,6 @@
 
 #include "Neuron.hpp"
-#include "activationFunctions.hpp"
+// #include "activationFunctions.hpp"
 
 #include <cmath>
 #include <cstdlib>
@@ -71,27 +71,27 @@ void Neuron::updateWeightsAndBias(
 }
 
 
-int main() {
+// int main() {
 
-    // Define input values
-    std::vector<double> inputs = {0.5, 1, -0.5, 0};
+//     // Define input values
+//     std::vector<double> inputs = {0.5, 1, -0.5, 0};
 
-    // Create neuron
-    Neuron n(inputs.size(), 0.1);
+//     // Create neuron
+//     Neuron n(inputs.size(), 0.1);
 
-    std::cout << "Initialising neuron with weights and biases:" << "\n";
-    n.printWeightsAndBias();
+//     std::cout << "Initialising neuron with weights and biases:" << "\n";
+//     n.printWeightsAndBias();
 
-    // Activate the neuron
-    n.activate(inputs, ReLU); 
+//     // Activate the neuron
+//     n.activate(inputs, ReLU); 
 
-    // Update weights and biases (given a delta determiend in back-prop)
-    double delta = 0.1;
-    n.updateWeightsAndBias(inputs, delta);
+//     // Update weights and biases (given a delta determiend in back-prop)
+//     double delta = 0.1;
+//     n.updateWeightsAndBias(inputs, delta);
 
-    // print the neurons output value
-    std::cout << "Neuron Output: " << n.output << std::endl;
+//     // print the neurons output value
+//     std::cout << "Neuron Output: " << n.output << std::endl;
 
-    return 0;
+//     return 0;
 
-}
+// }

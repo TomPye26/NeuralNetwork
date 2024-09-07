@@ -1,11 +1,12 @@
-#include<vector>
-#include<iostream>
-#include<cmath>
-#include<cstdlib>
-#include<algorithm>
+#include <vector>
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <algorithm>
+#include <string>
 
-#include"activationFunctions.hpp"
-#include"Layer.hpp"
+// #include "activationFunctions.hpp"
+#include "Layer.hpp"
 
 class NeuralNetwork {
 public:
@@ -13,9 +14,14 @@ public:
     // Class Attributes
     std::vector<Layer> layers;
     std::vector<int> topology;
+    std::vector<std::string> activationFuncTopology; 
 
     // Constructor
-    NeuralNetwork(const std::vector<int> &topology, double learningRate) : topology(topology) { 
+    NeuralNetwork(
+        const std::vector<int> &topology,
+        const std::vector<std::string> &activationFuncTopology, 
+        double learningRate
+    ) : topology(topology), activationFuncTopology(activationFuncTopology) { 
         
 
         // starting at 1 as 0 is the input layer
@@ -23,7 +29,14 @@ public:
             // create layer for the given topology
             int numNueorns = topology[i];
             int inputsPerNeuron = topology[i-1];
-            Layer layer(numNueorns, inputsPerNeuron, learningRate);
+            std::string activationFuncString = activationFuncTopology[i];
+
+            Layer layer(
+                numNueorns, 
+                inputsPerNeuron, 
+                learningRate, 
+                activationFuncString
+            );
             
             layers.push_back(layer);
         }
@@ -32,8 +45,8 @@ public:
     // Functional Methods
 
     std::vector<std::vector<double>> propagateFowrards(
-        const std::vector<double>& inputs,
-        double (*activationFunc)(double)) {
+        const std::vector<double>& inputs
+     ) {
 
         // OTT commenting to explain to myself...
         // vector of vectors giving the input to each neuron in each layers
@@ -44,13 +57,10 @@ public:
         layerValues.push_back(currentInputs);
 
         for (size_t i = 0; i < layers.size(); ++i) {
-            
-            currentInputs = layers[i].activateLayer(currentInputs, activationFunc);
 
-            // apply softmax to the last layer
-            if (i == layers.size()-1) {
-                currentInputs = softMax(currentInputs);
-            }
+            layers[i].printActivationFunc();
+            
+            currentInputs = layers[i].activateLayer(currentInputs);
 
             layerValues.push_back(currentInputs);
 
@@ -60,24 +70,26 @@ public:
     }
 
     void propagateBackwards(
-
-        // OTT commenting for my own benefit.
-
         const std::vector<std::vector<double>>& layerInputs,
-        const std::vector<double>& expectedOutputs,
-        double (*d_activationFunc)(double)) {
+        const std::vector<double>& expectedOutputs
+    ) {
 
+        // OTT commenting for my own benefit.   
 
         // output layer is the last layer
         const std::vector<double>& outputLayer = layerInputs.back();
 
         // calculate loss and deltas for output layer
+        Layer& lastLayer = layers.back();
+        double (*d_activationFunc)(double) = lastLayer.getActivationFunctionDerivative();
+
         std::vector<double> outputDeltas;
         for (size_t i = 0; i < outputLayer.size(); ++i) {
             double output_i = outputLayer[i];
             double loss = expectedOutputs[i] - output_i;
             
             // delta = loss * d(activationFunc)/dx
+            
             double delta = loss * d_activationFunc(output_i);
 
             outputDeltas.push_back(delta);
@@ -94,17 +106,20 @@ public:
             std::vector<double> hiddenDeltas;
             std::vector<double> thisLayerOutput = layerInputs[i + 1];
             std::vector<double> nextLayerDeltas = layerDeltas.back();
+            Layer& thisLayer = layers[i];
+            double (*d_activationFunc)(double) = thisLayer.getActivationFunctionDerivative();
             Layer& nextLayer = layers[i + 1];
+            std::vector<Neuron>& nextLayerNeurons = nextLayer.getNeurons(); 
 
             // looping through nerons in layer i
             for (size_t j = 0; j < thisLayerOutput.size(); ++j) {
                 
                 double deltaSum = 0.0;
-                for (size_t k = 0; k < nextLayer.neurons.size(); ++k) {
+                for (size_t k = 0; k < nextLayerNeurons.size(); ++k) {
 
                     // weight connecting the neuron j from layer i 
                     // to neuron k in next layer
-                    double weight_kj = nextLayer.neurons[k].weights[j];
+                    double weight_kj = nextLayerNeurons[k].weights[j];
 
                     // delta of neuron k in the next layer.
                     double delta_k = nextLayerDeltas[k];
@@ -133,9 +148,7 @@ public:
     void train(
         const std::vector<std::vector<double>>& inputData,
         const std::vector<std::vector<double>>& targetOutputData,
-        int numEpochs,
-        double (*activationFunc)(double),
-        double (*d_activationFunc)(double)
+        int numEpochs
     ) {
         for (int epoch = 0; epoch < numEpochs; ++epoch) {
 
@@ -154,7 +167,8 @@ public:
 
                 // prop forward
                 // std::cout << "forward prop" << std::endl;
-                std::vector<std::vector<double>> layerInputs = propagateFowrards(input, activationFunc);
+                std::vector<std::vector<double>> layerInputs ;
+                layerInputs= propagateFowrards(input);
 
                 // calculate loss
                 const std::vector<double>& outputLayer = layerInputs.back();
@@ -170,7 +184,7 @@ public:
                 // prop backwards
                 // std::cout << "backwards prop" << std::endl;
 
-                propagateBackwards(layerInputs, targetOutputs, d_activationFunc);
+                propagateBackwards(layerInputs, targetOutputs);
 
             }
 
@@ -190,12 +204,7 @@ public:
 
         // forwards pass returning only values of last layer
         for (size_t i = 0; i < layers.size(); ++i) {
-            // TODO: replace sigmoid with general activation func.
-            thisInput = layers[i].activateLayer(thisInput, sigmoid);
-            
-            if (i == layers.size() - 1) {
-                thisInput = softMax(thisInput);
-            }
+            thisInput = layers[i].activateLayer(thisInput);
         }
 
         return thisInput;
@@ -205,16 +214,19 @@ public:
 
 int main() {
 
-    // dummy data 
-    std::vector<std::vector<double>> inputs = {{0.5, -0.5, 1.0, -1.0, 0.0}, {0.1, -0.3, 1.0, -1.0, 0.0}, {0.2, -0.4, 1.0, -1.0, 0.0}};
-    std::vector<std::vector<double>> expectedOutputs = {{0.1, 0.9, 1.0}, {0.3, 0.9, 1.0}, {0.4, 0.9, 1.0}};
+    // // dummy data 
+    std::vector<std::vector<double>> inputs = {{0.5, -0.5, 1.0, -1.0, 0.0}};//, {0.1, -0.3, 1.0, -1.0, 0.0}, {0.2, -0.4, 1.0, -1.0, 0.0}};
+    std::vector<std::vector<double>> expectedOutputs = {{0.1, 0.9, 1.0}};//, {0.3, 0.9, 1.0}, {0.4, 0.9, 1.0}};
     
-    std::vector<int> topology = {(int)inputs[0].size(), 4, 4, (int)expectedOutputs[0].size()};
+    std::vector<int> topology = {(int)inputs[0].size(), 16, 16, (int)expectedOutputs[0].size()};
+    std::vector<std::string> actFuncTopology = {
+        "sigmoid", "sigmoid", "ReLU", "SoftMax"
+    };
 
-    NeuralNetwork network(topology, 0.1);
+    NeuralNetwork network(topology, actFuncTopology, 0.1);
 
     // std::cout << "\n\n" << std::endl;
-    network.train(inputs, expectedOutputs, 100, sigmoid, d_sigmoid);
+    network.train(inputs, expectedOutputs, 20);
 
     std::vector<double> prediction = network.predict(inputs.back());
     std::cout << "Prediction:" << std::endl;
@@ -222,4 +234,10 @@ int main() {
         std::cout << x << std::endl;
     }
     return 0;
+
+
+
+    // std::string AF = "sigmoid";
+    // create a layer
+    // Layer layer(5, 3, 0.1, AF);
 };
