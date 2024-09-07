@@ -1,62 +1,99 @@
-#include<vector>
-#include<iostream>
-#include<cmath>
-#include<cstdlib>
+#include "Layer.hpp"
+
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
 
 #include"activationFunctions.hpp"
-#include"Neuron.hpp"
 
-class Layer {
 
-public:
+void Layer::assignActivationFunction(std::string& activationFuncString) {
 
-    // Attribute Variables
-    std::vector<Neuron> neurons;
+    if (activationFuncString == "ReLU")
+    {
+        activationFunc = ReLU;
+        d_activationFunc = d_ReLU;
+    }  else if (activationFuncString == "sigmoid")
+    {
+        activationFunc = sigmoid;
+        d_activationFunc = d_sigmoid;
+    } else if (activationFuncString == "SoftMax")
+    {
+        /* TODO: IMPLEMENT */
+    } else {
+        std::cerr << "Unrecognised activation function: " << 
+        activationFuncString << "\n Choose from: 'ReLU', 'sigmoid', " <<
+        "'SoftMax'" << std::endl;
 
-    // Constructor
-    Layer(int numNeurons, int numInputsPerNeuron, double learningRate) {
+        return;
+    }
+    
+}
 
-        // setting random seed
-        std::srand(std::time(nullptr));
+// Constructor
+Layer::Layer(
+    int numNeurons,
+    int numInputsPerNeuron,
+    double learningRate,
+    std::string activationFuncString
+) : activationFuncString(activationFuncString) {
 
-        for (int i = 0; i < numNeurons; ++i) {
-            Neuron n(numInputsPerNeuron, learningRate);
-            neurons.push_back(n);
-        }
+    // setting random seed
+    std::srand(std::time(nullptr));
+
+    for (int i = 0; i < numNeurons; ++i) {
+        Neuron n(numInputsPerNeuron, learningRate);
+        neurons.push_back(n);
     }
 
-    // Functional Methods
-    std::vector<double> activateLayer(const std::vector<double> &inputs, double (*activationFunc)(double)) {
-        std::vector<double> outputs;
-        for (int i = 0; i < neurons.size(); ++i) {
-            Neuron& n = neurons[i];
-            double n_activation_val = n.activate(inputs, activationFunc);
+    assignActivationFunction(activationFuncString);
+}
 
-            outputs.push_back(n_activation_val);
-        };
+// Functional Methods
+std::vector<double> Layer::activateLayer(
+    const std::vector<double> &inputs
+) {
+    std::vector<double> outputs;
+    for (int i = 0; i < neurons.size(); ++i) {
+        Neuron& n = neurons[i];
+        double n_activation_val = n.activate(inputs, activationFunc);
 
-        return outputs;
+        outputs.push_back(n_activation_val);
     };
 
-    void updateLayerWeightsAndBiases(const std::vector<double>& inputs, const std::vector<double>& deltas) {
-        
-        for (size_t i = 0; i < neurons.size(); ++i) {
-            neurons[i].updateWeightsAndBias(inputs, deltas[i]);
-        }
-    }
-
-    // Utility Methods
-
-    void printLayerWeightsAndBiases() {
-        for (int i = 0; i < neurons.size(); ++i) {
-            std::cout << "Neuron " << i+1 << "\n"; 
-            Neuron& n = neurons[i];
-            n.printWeightsAndBias();
-            std::cout << "\n";
-        }
-    }
-
+    return outputs;
 };
+
+void Layer::updateLayerWeightsAndBiases(
+    const std::vector<double>& inputs, 
+    const std::vector<double>& deltas
+) {
+    
+    for (size_t i = 0; i < neurons.size(); ++i) {
+        neurons[i].updateWeightsAndBias(inputs, deltas[i]);
+    }
+}
+
+// Utility Methods
+void Layer::printLayerWeightsAndBiases() {
+    for (int i = 0; i < neurons.size(); ++i) {
+        std::cout << "Neuron " << i+1 << "\n"; 
+        Neuron& n = neurons[i];
+        n.printWeightsAndBias();
+        std::cout << "\n";
+    }
+}
+
+void Layer::printNeuronOutputs() {
+    for (int i = 0; i < neurons.size(); ++i) {
+        std::cout << "Neuron " << i + 1 << " output: " << 
+        neurons[i].output << std::endl;
+    }
+}
+
+void Layer::printActivationFunc(){
+    std::cout << "Activation Func: " << Layer::activationFuncString << std::endl;
+}
 
 
 int main() { 
@@ -66,19 +103,23 @@ int main() {
     
     int numInputs = inputs.size();
     int numNeurons = 8; // arbitrary value
-    double learningRate = 2.0;
+    double learningRate = 0.1;
+    std::string activationFuncString = "sigmoid";
     
     // create a layer
-    Layer layer(numNeurons, numInputs, learningRate);
+    Layer layer(numNeurons, numInputs, learningRate, activationFuncString);
 
     // activate each neuron in the layer
-    std::vector<double> outputs = layer.activateLayer(inputs, sigmoid);
+    std::vector<double> outputs = layer.activateLayer(inputs);
 
 
     // update weights and biases (using exampe deltas)
     std::vector<double> deltas(8, 2.0);
     layer.updateLayerWeightsAndBiases(inputs, deltas);
 
+    layer.printLayerWeightsAndBiases();
+
+    layer.printActivationFunc();
 
     return 0;
 }
