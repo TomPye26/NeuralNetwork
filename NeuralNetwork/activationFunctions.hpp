@@ -34,6 +34,7 @@ double d_ReLU(double x) {
     }
 }
 
+// softMax
 std::vector<double> softMax(std::vector<double> inputVector) {
 
 
@@ -47,4 +48,12 @@ std::vector<double> softMax(std::vector<double> inputVector) {
     }
 
     return inputVector;
+}
+
+double doNothing(double x) {
+    return x;
+}
+
+double d_doNothing(double x) {
+    return 1.0;
 }

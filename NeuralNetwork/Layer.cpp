@@ -19,7 +19,11 @@ void Layer::assignActivationFunction(std::string& activationFuncString) {
         d_activationFunc = d_sigmoid;
     } else if (activationFuncString == "SoftMax")
     {
-        /* TODO: IMPLEMENT */
+        /* when softmax, we are applying the function to the whole ouput
+        vector, so don't need to do anything to individual neurons. */
+        activationFunc = doNothing;
+        d_activationFunc = d_doNothing;
+
     } else {
         std::cerr << "Unrecognised activation function: " << 
         activationFuncString << "\n Choose from: 'ReLU', 'sigmoid', " <<
@@ -54,12 +58,19 @@ std::vector<double> Layer::activateLayer(
     const std::vector<double> &inputs
 ) {
     std::vector<double> outputs;
+    
     for (int i = 0; i < neurons.size(); ++i) {
         Neuron& n = neurons[i];
         double n_activation_val = n.activate(inputs, activationFunc);
 
         outputs.push_back(n_activation_val);
-    };
+    }
+
+    if (activationFuncString == "SoftMax")
+    {
+        outputs = softMax(outputs);
+    }
+    
 
     return outputs;
 };
@@ -102,9 +113,9 @@ int main() {
     std::vector<double> inputs = {0.5, -0.5, 1.0, -1.0};
     
     int numInputs = inputs.size();
-    int numNeurons = 8; // arbitrary value
+    int numNeurons = 4; // arbitrary value
     double learningRate = 0.1;
-    std::string activationFuncString = "sigmoid";
+    std::string activationFuncString = "SoftMax";
     
     // create a layer
     Layer layer(numNeurons, numInputs, learningRate, activationFuncString);
@@ -114,12 +125,16 @@ int main() {
 
 
     // update weights and biases (using exampe deltas)
-    std::vector<double> deltas(8, 2.0);
+    std::vector<double> deltas(numNeurons, 0.2);
     layer.updateLayerWeightsAndBiases(inputs, deltas);
 
     layer.printLayerWeightsAndBiases();
 
     layer.printActivationFunc();
+
+    for (double o : outputs) {
+        std::cout << o << "\n";
+    }
 
     return 0;
 }
