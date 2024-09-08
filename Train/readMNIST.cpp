@@ -6,7 +6,8 @@
 void readMNIST(
     const std::string& fileName,
     std::vector<std::vector<double>>& inputs,
-    std::vector<std::vector<double>>& outputs
+    std::vector<std::vector<double>>& outputs,
+    const int nRows
 ) {
     std::ifstream csvFile(fileName);
     std::string line;
@@ -21,7 +22,10 @@ void readMNIST(
         
     std::cout << "Loading dataset" << std::endl;
 
-    while (csvFile && std::getline(csvFile, line)) {
+
+    int nLinesRead = 0;
+
+    while (csvFile && std::getline(csvFile, line) && (nLinesRead < nRows)) {
         std::stringstream ss(line);
         std::string item;
 
@@ -30,7 +34,7 @@ void readMNIST(
         int label = std::stoi(item);
 
         // Converting label to output vector
-        // e.g. 3 -> {0, 0, 0, 1, 0, ...}
+        // e.g. 3 -> {0, 0, 0, 1, 0, 0, 0  0, 0, 0}
         std::vector<double> output(10, 0.0);
         output[label] = 1.0;
         outputs.push_back(output);
@@ -42,6 +46,8 @@ void readMNIST(
             input.push_back(std::stod(item) / 255);
         }
         inputs.push_back(input);
+
+        nLinesRead++;
     }
 
     csvFile.close();
@@ -49,15 +55,15 @@ void readMNIST(
 }
 
 
-int main() {
+// int main() {
 
-    std::vector<std::vector<double>> inputs, outputs;
+//     std::vector<std::vector<double>> inputs, outputs;
 
-    std::string path = "C:\\Users\\thoma\\Documents\\NeuralNetwork\\Datasets\\MNIST\\mnist_train.csv";
+//     std::string path = "C:\\Users\\thoma\\Documents\\NeuralNetwork\\Datasets\\MNIST\\mnist_train.csv";
 
-    readMNIST(path, inputs, outputs);
+//     readMNIST(path, inputs, outputs);
 
-    std::cout << "Read " << inputs.size() << " lines." << std::endl;
+//     std::cout << "Read " << inputs.size() << " lines." << std::endl;
 
-    return 0;
-}
+//     return 0;
+// }
