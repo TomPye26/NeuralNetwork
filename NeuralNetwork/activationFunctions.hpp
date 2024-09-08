@@ -19,18 +19,18 @@ double d_sigmoid(double x) {
 
 // ReLU
 double ReLU(double x) {
-    if (x >= 0) {
+    if (x >= 0.0) {
         return x;
     } else {
-        return 0;
+        return (double)0.0;
     }
 }
 
 double d_ReLU(double x) {
     if (x >= 0) {
-        return 1;
+        return (double)1.0;
     } else {
-        return 0;
+        return (double)0.0;
     }
 }
 
