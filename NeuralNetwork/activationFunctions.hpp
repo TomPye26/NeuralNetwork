@@ -22,17 +22,35 @@ double ReLU(double x) {
     if (x >= 0.0) {
         return x;
     } else {
-        return (double)0.0;
+        return 0.0;
     }
 }
 
 double d_ReLU(double x) {
-    if (x >= 0) {
-        return (double)1.0;
+    if (x >= 0.0) {
+        return 1.0;
     } else {
-        return (double)0.0;
+        return 0.0;
     }
 }
+
+// leaky ReLU
+double leakyReLU(double x){
+    if (x >= 0.0) {
+        return x;
+    } else {
+        return 0.1 * x;
+    }
+}
+
+double d_leakyReLU(double x) {
+    if (x >= 0.0) {
+        return 1.0;
+    } else {
+        return 0.1;
+    }
+}
+
 
 // softMax
 std::vector<double> softMax(std::vector<double> inputVector) {

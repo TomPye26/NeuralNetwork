@@ -15,10 +15,17 @@ void Layer::assignActivationFunction(std::string& activationFuncString) {
     {
         activationFunc = ReLU;
         d_activationFunc = d_ReLU;
+
     }  else if (activationFuncString == "sigmoid")
     {
         activationFunc = sigmoid;
         d_activationFunc = d_sigmoid;
+        
+    } else if (activationFuncString == "leakyReLU")
+    {
+        activationFunc = leakyReLU;
+        d_activationFunc = d_leakyReLU;
+
     } else if (activationFuncString == "SoftMax")
     {
         /* when softmax, we are applying the function to the whole ouput
@@ -29,7 +36,7 @@ void Layer::assignActivationFunction(std::string& activationFuncString) {
     } else {
         std::cerr << "Unrecognised activation function: " << 
         activationFuncString << "\n Choose from: 'ReLU', 'sigmoid', " <<
-        "'SoftMax'" << std::endl;
+        "'leakyReLU', 'SoftMax'" << std::endl;
 
         return;
     }
