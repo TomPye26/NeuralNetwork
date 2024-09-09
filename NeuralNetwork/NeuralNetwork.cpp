@@ -149,7 +149,8 @@ void NeuralNetwork::train(
 
         for (size_t i = 0; i < inputData.size(); ++i) {
             
-            // std::cout << "input data point " << i+1 << std::endl;
+            std::cout << "\rEpoch " << epoch  << 
+            " Progress: " << i + 1 << "/" << inputData.size() << std::flush;
 
             std::vector<double> input = inputData[i];
             std::vector<double> targetOutputs = targetOutputData[i];
@@ -179,7 +180,7 @@ void NeuralNetwork::train(
 
         double averageLoss = totalLoss / inputData.size();
 
-        std::cout << "Epoch " << epoch << " AverageLoss: " << averageLoss << std::endl;
+        std::cout << " Done. AverageLoss: " << averageLoss << std::endl;
 
         // Layer lastLayer = layers.back();
         // lastLayer.printNeuronOutputs();
